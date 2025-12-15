@@ -1,0 +1,30 @@
+# Visual Studio cache
+.vs/
+
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Log files
+*.log
+
+# Package folders
+packages/
+*.nupkg
+*.nuspec
+
+# Publish output
+*.Publish.xml
+*.publishsettings
+
+# Others
+*.exe
+*.dll
+*.pdb
+*.dbmdl
