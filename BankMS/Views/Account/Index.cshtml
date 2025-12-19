@@ -15,10 +15,14 @@
             <p class="text-muted">View and manage all bank accounts in the system</p>
         </div>
         <div>
-            <a href="@Url.Action("Create", "BankAccount")" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Create New Account
+            <a asp-controller="Account"
+               asp-action="CreateOrEdit"
+               class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>
+                Create New Account
             </a>
         </div>
+
     </div>
 
     <!-- Statistics Cards -->
@@ -214,12 +218,14 @@
                                            title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="@Url.Action("Edit", "BankAccount", new { id = account.Id })" 
-                                           class="btn btn-sm btn-outline-secondary" 
-                                           data-bs-toggle="tooltip" 
-                                           title="Edit Account">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                    <a href="@Url.Action("CreateOrEdit", "Account", new { id = account.Id })"
+                                       class="btn btn-sm btn-outline-secondary"
+                                       data-bs-toggle="tooltip"
+                                       title="Edit Account">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+
                                         <a href="@Url.Action("Delete", "BankAccount", new { id = account.Id })" 
                                            class="btn btn-sm btn-outline-danger" 
                                            data-bs-toggle="tooltip" 
