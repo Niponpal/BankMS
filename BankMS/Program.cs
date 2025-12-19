@@ -1,4 +1,5 @@
 using BankMS.Data;
+using BankMS.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.Configuration.
     GetConnectionString("Coon")));
 
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
