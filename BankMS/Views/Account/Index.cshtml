@@ -212,7 +212,7 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group" role="group">
-                                        <a href="@Url.Action("Details", "BankAccount", new { id = account.Id })" 
+                                        <a href="@Url.Action("Details", "Account", new { id = account.Id })" 
                                            class="btn btn-sm btn-outline-primary" 
                                            data-bs-toggle="tooltip" 
                                            title="View Details">
@@ -226,13 +226,21 @@
                                     </a>
 
 
-                                        <a href="@Url.Action("Delete", "BankAccount", new { id = account.Id })" 
-                                           class="btn btn-sm btn-outline-danger" 
-                                           data-bs-toggle="tooltip" 
-                                           title="Delete Account"
-                                           onclick="return confirm('Are you sure you want to delete this account?')">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <form asp-action="Delete"
+                                              asp-controller="Account"
+                                              asp-route-id="@account.Id"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to delete this account?');">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Delete Account">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+
                                     </div>
                                 </td>
                             </tr>
@@ -282,8 +290,108 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
+<form method="post">
+    @Html.AntiForgeryToken()
+</form>
+
+
+
+
+    @section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const rows = document.querySelectorAll('#accountsTable tbody tr');
+
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const accountCheckboxes = document.querySelectorAll('.account-check');
+    const selectedCount = document.getElementById('selectedCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+    const bulkActionModal = new bootstrap.Modal(document.getElementById('bulkActionModal'));
+    const selectedCountModal = document.getElementById('selectedCountModal');
+    const confirmBulkDelete = document.getElementById('confirmBulkDelete');
+
+    // Filter
+    function filterTable() {
+        const search = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+        const type = typeFilter.value;
+
+        rows.forEach(row => {
+            const accNo = row.cells[1].innerText.toLowerCase();
+            const accType = row.cells[2].innerText;
+            const accStatus = row.cells[4].innerText;
+
+            const ok =
+                (accNo.includes(search) || accType.toLowerCase().includes(search)) &&
+                (!status || accStatus.includes(status)) &&
+                (!type || accType.includes(type));
+
+            row.style.display = ok ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+    typeFilter.addEventListener('change', filterTable);
+
+    // Select all
+    selectAllCheckbox.addEventListener('change', () => {
+        accountCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+        updateSelectedCount();
+    });
+
+    accountCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    function updateSelectedCount() {
+        const count = [...accountCheckboxes].filter(cb => cb.checked).length;
+        selectedCount.innerText = `${count} accounts selected`;
+        selectedCountModal.innerText = count;
+        bulkDeleteBtn.disabled = count === 0;
+    }
+
+    bulkDeleteBtn.addEventListener('click', () => {
+        bulkActionModal.show();
+    });
+
+    // ✅ REAL BULK DELETE
+    confirmBulkDelete.addEventListener('click', function () {
+
+        const ids = [...accountCheckboxes]
+            .filter(cb => cb.checked)
+            .map(cb => parseInt(cb.value));
+
+        fetch('/Account/BulkDelete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken':
+                    document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify(ids)
+        })
+        .then(res => res.ok ? location.reload() : alert('Delete failed'));
+    });
+
+    updateSelectedCount();
+});
+</script>
+
+
+
+
+ @*    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -368,18 +476,52 @@
                 }
             });
 
-            confirmBulkDelete.addEventListener('click', function() {
-                const selectedIds = [...accountCheckboxes]
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
+
+            // confirmBulkDelete.addEventListener('click', function() {
+            //     const selectedIds = [...accountCheckboxes]
+            //         .filter(cb => cb.checked)
+            //         .map(cb => cb.value);
                 
-                // Here you would typically make an AJAX call to delete multiple accounts
-                console.log('Deleting accounts with IDs:', selectedIds);
+            //     // Here you would typically make an AJAX call to delete multiple accounts
+            //     console.log('Deleting accounts with IDs:', selectedIds);
                 
-                // For now, just reload the page
+            //     // For now, just reload the page
+            //     bulkActionModal.hide();
+            //     alert(`Deleting ${selectedIds.length} accounts... (This is a demo)`);
+            // });
+
+
+                    confirmBulkDelete.addEventListener('click', function () {
+            const selectedIds = [...accountCheckboxes]
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.value));
+
+            if (selectedIds.length === 0) return;
+
+            fetch('/Account/BulkDelete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken':
+                        document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: JSON.stringify(selectedIds)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Delete failed');
+                return response.json();
+            })
+            .then(data => {
                 bulkActionModal.hide();
-                alert(`Deleting ${selectedIds.length} accounts... (This is a demo)`);
+                location.reload(); // refresh table
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Something went wrong while deleting accounts');
             });
+        });
+
+
 
             // Export functionality
             exportBtn.addEventListener('click', function() {
@@ -390,7 +532,7 @@
             // Initialize count
             updateSelectedCount();
         });
-    </script>
+    </script> *@
 }
 
 <style>

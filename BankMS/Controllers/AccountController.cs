@@ -81,5 +81,35 @@ public class AccountController : Controller
         return View(account);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BulkDelete([FromBody] List<int> ids)
+    {
+        if (ids == null || !ids.Any())
+            return BadRequest("No ids received");
+
+        foreach (var id in ids)
+        {
+            var account = await _accountRepository.GetAccountByIdAsync(id);
+            if (account != null)
+            {
+                await _accountRepository.GetDeleteAsync(id);
+            }
+        }
+
+        return Ok(new { success = true });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var account = await _accountRepository.GetAccountByIdAsync(id);
+        if (account == null)
+        {
+            return NotFound();
+        }
+        return View(account);
+    }
+
 
 }
