@@ -1,1 +1,165 @@
-﻿
+﻿@model BankMS.Models.Loan
+
+@{
+    ViewData["Title"] = "Loan Application Details";
+    ViewData["ActivePage"] = "Loans";
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h3 class="mb-1 fw-bold" style="color: var(--primary);">Loan Details</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Loan" asp-action="Index">Loan Applications</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Application #@Model.Id</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn btn-warning shadow-sm">
+            <i class="bi bi-pencil-square me-2"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Details Card -->
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+        <div class="dashboard-card overflow-hidden" style="border-radius: 20px;">
+            <!-- Gradient Header with Status Badge -->
+            <div class="text-white py-5 text-center position-relative" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+                <div class="position-absolute top-0 end-0 m-4">
+                    <span class="badge fs-5 px-4 py-3 rounded-pill
+                        @(Model.LoanStatus == "Approved" ? "bg-success" :
+                                                    Model.LoanStatus == "Rejected" ? "bg-danger" :
+                                                    "bg-warning text-dark")">
+                        @Model.LoanStatus
+                    </span>
+                </div>
+                <div class="card-icon bg-white d-inline-flex mb-4 shadow-lg" style="width: 90px; height: 90px; border-radius: 50%;">
+                    <i class="bi bi-bank fs-1 text-primary m-auto"></i>
+                </div>
+                <h2 class="fw-bold mb-2">@Model.LoanType Loan</h2>
+                <p class="mb-0 fs-4 opacity-90">
+                    Application ID: #@Model.Id
+                </p>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-5">
+                <div class="row g-5">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold text-muted mb-4">Loan Information</h5>
+                        <dl class="row g-4">
+                            <dt class="col-sm-5 fw-medium text-muted">Loan Type</dt>
+                            <dd class="col-sm-7 fs-5 fw-bold" style="color: var(--primary);">@Model.LoanType</dd>
+
+                            <dt class="col-sm-5 fw-medium text-muted">Loan Amount</dt>
+                            <dd class="col-sm-7 fs-4 fw-bold text-success">@Model.LoanAmount.ToString("C")</dd>
+
+                            <dt class="col-sm-5 fw-medium text-muted">Interest Rate</dt>
+                            <dd class="col-sm-7 fs-5">@Model.InterestRate.ToString("F2")% per annum</dd>
+
+                            <dt class="col-sm-5 fw-medium text-muted">Duration</dt>
+                            <dd class="col-sm-7 fs-5">@Model.DurationMonths months</dd>
+                        </dl>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold text-muted mb-4">Application Details</h5>
+                        <dl class="row g-4">
+                            <dt class="col-sm-5 fw-medium text-muted">Status</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge fs-5 px-4 py-2 rounded-pill
+                                    @(Model.LoanStatus == "Approved" ? "bg-success" :
+                                                                            Model.LoanStatus == "Rejected" ? "bg-danger" :
+                                                                            "bg-warning text-dark")">
+                                    @Model.LoanStatus
+                                </span>
+                            </dd>
+
+                            <dt class="col-sm-5 fw-medium text-muted">Applied Date</dt>
+                            <dd class="col-sm-7 fs-5">
+                                <i class="bi bi-calendar-check me-2 text-primary"></i>
+                                @Model.AppliedDate.ToString("dddd, MMMM dd, yyyy")
+                            </dd>
+
+                            <dt class="col-sm-5 fw-medium text-muted">Monthly EMI (Estimate)</dt>
+                            <dd class="col-sm-7 fs-5 fw-bold text-info">
+                                @{
+                                    // Fixed EMI calculation - no more decimal/double error
+                                    decimal principal = Model.LoanAmount;
+                                    decimal monthlyRate = (decimal)Model.InterestRate / 12 / 100;
+                                    int months = Model.DurationMonths;
+
+                                    decimal emi;
+
+                                    if (monthlyRate == 0)
+                                    {
+                                        emi = principal / months;
+                                    }
+                                    else
+                                    {
+                                        decimal temp = (decimal)Math.Pow(1 + (double)monthlyRate, months);
+                                        emi = principal * monthlyRate * temp / (temp - 1);
+                                    }
+
+                                    // Round to 2 decimal places
+                                    emi = Math.Round(emi, 2);
+                                }
+                                @emi.ToString("C")
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <hr class="my-5 border-secondary-subtle">
+
+                <div class="text-end">
+                    <a asp-action="CreateOrEdit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg px-5 shadow-sm me-3 hover-lift">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Application
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-5 shadow-sm hover-lift">
+                        <i class="bi bi-list-ul me-2"></i>Back to Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-card {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+    dl dt {
+        color: var(--text-muted);
+    }
+
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+
+    .btn-lg {
+        border-radius: 12px;
+        font-weight: 600;
+    }
+</style>
