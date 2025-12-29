@@ -11,6 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.
     GetConnectionString("Coon")));
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
 
 var app = builder.Build();
