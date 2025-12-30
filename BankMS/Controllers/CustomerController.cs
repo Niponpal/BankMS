@@ -49,4 +49,24 @@ public class CustomerController : Controller
                return RedirectToAction(nameof(Index));
             }  
     }
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var customer = await _customerRepository.GetDeleteCustomerAsync(id);
+        if (customer != null)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+        return NotFound();
+    }
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var customer = await _customerRepository.GetCustomerByIdAsync(id);
+        if (customer != null)
+        {
+            return View(customer);
+        }
+        return NotFound();
+    }
 }
