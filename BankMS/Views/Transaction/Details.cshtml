@@ -1,0 +1,157 @@
+﻿@model BankMS.Models.Transaction
+@{
+    ViewData["Title"] = "Transaction Details";
+    ViewData["ActivePage"] = "TransactionHistory";
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h3 class="mb-1 fw-bold text-primary">Transaction Details</h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Transaction" asp-action="Index">Transaction History</a></li>
+                <li class="breadcrumb-item active" aria-current="page">#@Model.Id</li>
+            </ol>
+        </nav>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-primary btn-lg rounded-pill">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<!-- Main Content -->
+<div class="row justify-content-center">
+    <div class="col-lg-11 col-xl-9">
+        <!-- Summary Card -->
+        <div class="card border-0 shadow-sm mb-5 overflow-hidden" style="border-radius: 20px;">
+            <div class="card-body p-5 p-xl-6 text-center">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-4"
+                     style="width: 90px; height: 90px;">
+                    <i class="@(Model.Amount > 0 ? "bi bi-arrow-up-right text-success" : "bi bi-arrow-down-left text-danger") fs-2"></i>
+                </div>
+                <h2 class="fw-bold mb-3 @(Model.Amount > 0 ? "text-success" : "text-danger")">
+                    @(Model.Amount > 0 ? "+" : "")@Model.Amount.ToString("C")
+                </h2>
+                <div class="d-flex justify-content-center gap-4 flex-wrap">
+                    <div class="text-center">
+                        <small class="text-muted text-uppercase fw-semibold">Transaction Type</small>
+                        <p class="fw-bold mb-0">
+                            <span class="badge @(Model.TransactionType switch
+                                  {
+                                      "Deposit" or "Credit" => "bg-success",
+                                      "Withdrawal" or "Debit" or "Fee" => "bg-danger",
+                                      "Transfer" => "bg-info text-dark",
+                                      _ => "bg-secondary"
+                                  }) px-4 py-2 rounded-pill">
+                                @Model.TransactionType
+                            </span>
+                        </p>
+                    </div>
+                    <div class="text-center">
+                        <small class="text-muted text-uppercase fw-semibold">Date & Time</small>
+                        <p class="fw-bold mb-0">
+                            @Model.TransactionDate.ToString("dddd, MMMM dd, yyyy")<br>
+                            <span class="text-muted">@Model.TransactionDate.ToString("HH:mm")</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="row g-4">
+            <!-- Transaction ID -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-hash text-primary"></i>
+                            </div>
+                            <small class="text-muted text-uppercase fw-semibold">Transaction ID</small>
+                        </div>
+                        <h4 class="fw-bold mb-0">#@Model.Id</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Number -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-credit-card text-info"></i>
+                            </div>
+                            <small class="text-muted text-uppercase fw-semibold">Account Number</small>
+                        </div>
+                        <h4 class="fw-bold mb-0 text-primary">@Model.AccountId</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-secondary bg-opacity-10 rounded-3 p-3 me-3">
+                                <i class="bi bi-chat-text text-secondary"></i>
+                            </div>
+                            <small class="text-muted text-uppercase fw-semibold">Reference / Description</small>
+                        </div>
+                        <h5 class="fw-medium mb-0">
+                            @(string.IsNullOrWhiteSpace(Model.Reference)
+                                                        ? "<span class='text-muted fst-italic'>No reference provided</span>"
+                                                        : Model.Reference)
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex flex-wrap justify-content-end gap-3 mt-5">
+            <a asp-action="CreateOrEdit" asp-route-id="@Model.Id"
+               class="btn btn-outline-warning btn-lg rounded-pill px-5 shadow-sm">
+                <i class="bi bi-pencil-square me-2"></i>Edit Transaction
+            </a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline">
+                <button type="submit"
+                        class="btn btn-outline-danger btn-lg rounded-pill px-5 shadow-sm"
+                        onclick="return confirm('Are you sure you want to delete this transaction? This cannot be undone.');">
+                    <i class="bi bi-trash me-2"></i>Delete Transaction
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+        }
+
+    .badge {
+        font-size: 0.95rem;
+        padding: 0.65em 1.3em;
+        border-radius: 50px;
+    }
+
+    .btn-lg {
+        font-weight: 600;
+        padding: 0.75rem 2rem;
+    }
+
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+</style>

@@ -41,6 +41,23 @@ public class TransactionController : Controller
             return RedirectToAction("Index");
         }
     }
-
-
+    [HttpGet]
+    public async Task<IActionResult> Details(int id)
+    {
+        var data = await _transactionRepository.GetTransactionByIdAsync(id);
+          if(data != null)
+        {
+            return View(data);
+        }
+        return NotFound();
+    }
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var data = await _transactionRepository.GetDeleteTransactionAsync(id);
+        
+            return RedirectToAction("Index");
+        
+        
+    }
 }
