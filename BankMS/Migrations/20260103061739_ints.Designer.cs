@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251215053135_ints")]
+    [Migration("20260103061739_ints")]
     partial class ints
     {
         /// <inheritdoc />
@@ -273,11 +273,11 @@ namespace BankMS.Migrations
 
             modelBuilder.Entity("BankMS.Models.User", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -305,7 +305,7 @@ namespace BankMS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
