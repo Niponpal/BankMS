@@ -1,7 +1,6 @@
 ﻿using BankMS.Models;
 using BankMS.Repository;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BankMS.Controllers;
 

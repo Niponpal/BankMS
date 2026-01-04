@@ -1,7 +1,6 @@
-﻿using BankMS.Repository;
+﻿using BankMS.Models;
+using BankMS.Repository;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-
 namespace BankMS.Controllers;
 
 public class TransactionController : Controller
@@ -16,5 +15,32 @@ public class TransactionController : Controller
         var data= await _transactionRepository.GetAllTransactionsAsync();
         return View(data);
     }
+    [HttpGet]
+    public async Task<IActionResult> CreateOrEdit(int id) { 
+        if (id == 0)
+        {
+          return View(new Transaction());
+        }
+        else
+        {
+            var data = await _transactionRepository.GetTransactionByIdAsync(id);
+            return View(data);
+        }
+    }
+    [HttpPost]
+    public async Task<IActionResult> CreateOrEdit(Transaction transaction)
+    {
+        if (transaction.Id == 0)
+        {
+            await _transactionRepository.GetAddTransactionAsynce(transaction);
+            return RedirectToAction("Index");
+        }
+        else
+        {
+            await _transactionRepository.GetUpdateTransactionAsync(transaction);
+            return RedirectToAction("Index");
+        }
+    }
+
 
 }
