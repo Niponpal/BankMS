@@ -18,5 +18,5 @@ public class ApplicationDbContext: DbContext
     public DbSet<FundTransfer> FundTransfers { get; set; }  
     public DbSet<Loan> Loans { get; set; }
     public DbSet<Transaction> Transactions { get; set; }    
-    public DbSet<User> Users { get; set; }
+   
 }
